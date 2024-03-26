@@ -17,7 +17,7 @@ anova(Diff.model4, Diff.model3)
 #####Subset
 Sub.model1<-lm(log(Difference)~Gender+Period, data=subset(Diff.data, Timeline="Pre"))
 Sub.model2<-lm(log(Difference)~Period, data=subset(Diff.data, Timeline="Pre"))
-summary(Sub.model1)
+summary(Sub.model2)
 anova(Sub.model4,Sub.model3)
 Sub.model3<-lm(log(Difference)~Gender+Period+Timeline, data=Diff.G)
 Sub.model4<-lm(log(Difference)~Period+Timeline, data=Diff.G)

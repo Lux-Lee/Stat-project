@@ -1,0 +1,46 @@
+##Perceived Health##
+F_model1<- lm(log(Canadian)~Year_n*Indigenous+Category_n, data=subset(Project_Data, Gender=="Women"))
+summary(F_model1)
+F_model2<- lm(log(Canadian)~Year_n*Indigenous+Category_n, data=subset(Project_Data, Gender=="Men"))
+summary(F_model2)
+F_model3<- lm(log(Canadian)~Year_n*Indigenous+Category_n, data=subset(Project_Data, Gender=="Both"))
+summary(F_model3)
+F_model4<- lm(log(Indigenous)~Year_n*Canadian+Category_n, data=Project_Data)
+summary(F_model4)
+F_model5<- lm(log(Canadian)~Year_n*Indigenous+Category_n, data=Project_Data)
+summary(F_model5)
+F_model6<- lm(log(Canadian)~Category+Indigenous*Year_n, data=subset(Project_Data, Year_c=="Post"))
+summary(F_model6)
+F_model7<- lm(log(Canadian)~Category+Year_n, data=Project_Data)
+summary(F_model7)
+F_model8<- lm(log(Indigenous)~Category, data=Project_Data)
+summary(F_model8)
+
+###Vaccination###
+##COVID##
+Cov_model1 <- lm(log(Vaccination)~Group+Period, data= Gender_data)
+summary(Cov_model1)
+Cov_model2 <- lm(log(Vaccination)~Period, data=subset(Gender_data, Group=="Indigenous"))
+summary(Cov_model2)
+Cov_model3 <- lm(log(Vaccination)~Period, data=subset(Gender_data, Group=="Canadian"))
+summary(Cov_model3)
+
+##Difference##
+Diff.model1<-lm(log(Difference)~Timeline, data=Diff.data4)
+summary(Diff.model1)
+Sub.model2<-lm(log(Difference)~Period+Timeline, data=subset(Diff.data12, Gender=="Both"))
+summary(Diff.model2)
+Sub.model1<-lm(log(Difference)~Period, data=Diff.data12)
+summary(Sub.model1)
+
+##Percentage##
+Sub.model6<-lm(log(Percentage)~Group+Period, data=Diff.GR)
+summary(Sub.model6)
+Sub.model7<-lm(log(Percentage)~Group+Period, data=subset(Diff.GR, Gender=="Male"))
+summary(Sub.model7)
+Sub.model8<-lm(log(Percentage)~Group+Period, data=subset(Diff.GR, Gender=="Female"))
+summary(Sub.model8)
+Sub.model9<-lm(log(Percentage)~Group+Period, data=subset(Diff.GR, Gender=="Both"))
+summary(Sub.model9)
+Sub.model10<-lm(log(Percentage)~Group, data=subset(Diff.GR, Timeline=="Pre"))
+summary(Sub.model10)
