@@ -1,6 +1,6 @@
 Health_Data  <- bind_rows(
-  mutate(Indigenous, group = "Indigenous"),
-  mutate(Canadian, group = "Canadian")
+  mutate(Indigenous_Health, group = "Indigenous"),
+  mutate(Canadian_Health, group = "Canadian")
 )
 Health_Data$Period<- ifelse(Health_Data$Year == 2017, "Pre", "Post")
 Health_Data$Proportion<- Health_Data$Percentage/100
