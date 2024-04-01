@@ -74,8 +74,10 @@ emmeans(glm1, ~Gender + Period + Group,)
 emmeans(glm1, ~Gender + Group, by = "Period", type = "response")
 emm1 <- emmeans(glm1, ~Gender + Group, by = "Period", type = "response")
 pairs(emm1)
-plot(emm1)
-emm2 <- emmeans(glm1, ~Gender + Period + Group)
+plot(emm1, xlab="EMM", ylab="Gender:Group")
+
+glm2 <- glm(cbind(Ex_G, F_P) ~ Gender * Group * Year, data = Conv_Data_F, family = binomial)
+emm2 <- emmeans(glm2, ~Gender + Group, by="Year", type="response")
 pairs(emm2)
-plot(emm2)
+plot(emm2, xlab="EMM", ylab="Gender:Group")
 
