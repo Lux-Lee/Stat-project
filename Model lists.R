@@ -44,3 +44,11 @@ Sub.model9<-lm(log(Percentage)~Group+Period, data=subset(Diff.GR, Gender=="Both"
 summary(Sub.model9)
 Sub.model10<-lm(log(Percentage)~Group, data=subset(Diff.GR, Timeline=="Pre"))
 summary(Sub.model10)
+
+##GLM Models##
+Cov_model4 <-glm(cbind(Ex_G, F_P)~Gender*Group*Year, family=binomial, data=Conv_Data_F)
+summary(Cov_model4)
+glm1 <- glm(cbind(Ex_G, F_P) ~ Gender * Group * Period, data = Conv_Data_F, family = binomial)
+emm1 <- emmeans(glm1, ~Gender + Group, by = "Period", type = "response")
+pairs(emm1)
+plot(emm1)

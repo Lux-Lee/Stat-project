@@ -31,9 +31,6 @@ Ex_Data <- Perceived %>%
     Group = factor(Group, levels = c("Canadian", "Indigenous"))
   )
 
-names(Conv_Data_F)[3]<-paste("Ex_G")
-names(Conv_Data_F)[4]<-paste("F_P")
-
 Conv_Data_F<- Conv_Data %>%
   mutate(
     Year = factor(Year),
@@ -41,6 +38,9 @@ Conv_Data_F<- Conv_Data %>%
     Gender = factor(Gender, levels = c("Women", "Men")),
     Group = factor(Group, levels = c("Canadian", "Indigenous"))
   )
+
+names(Conv_Data_F)[3]<-paste("Ex_G")
+names(Conv_Data_F)[4]<-paste("F_P")
 
 model1<- glm(cbind(Count,Total-Count)~Gender*Group*Year, family=binomial, data=Ex_Data)
 summary(model1)
@@ -60,7 +60,22 @@ Cov_model3 <-glm(cbind(Ex_G, F_P)~Gender*Group+Year, family=binomial, data=Conv_
 summary(Cov_model3)
 Cov_model4 <-glm(cbind(Ex_G, F_P)~Gender*Group*Year, family=binomial, data=Conv_Data_F)
 summary(Cov_model4)
-anova(Cov_model1,Cov_model2, test="Chisq")
+Cov_model5 <-glm(cbind(Ex_G, F_P)~Gender*Group*Year, family=binomial(link=probit), data=Conv_Data_F)
+summary(Cov_model5)
+plot(Cov_model5)
+anova(Cov_model5,Cov_model4, test="Chisq")
 
 model1 <- multinom(Category ~ Gender * Group, data = longData)
 summary(model1)
+
+library(emmeans)
+glm1 <- glm(cbind(Ex_G, F_P) ~ Gender * Group * Period, data = Conv_Data_F, family = binomial)
+emmeans(glm1, ~Gender + Period + Group,)
+emmeans(glm1, ~Gender + Group, by = "Period", type = "response")
+emm1 <- emmeans(glm1, ~Gender + Group, by = "Period", type = "response")
+pairs(emm1)
+plot(emm1)
+emm2 <- emmeans(glm1, ~Gender + Period + Group)
+pairs(emm2)
+plot(emm2)
+
