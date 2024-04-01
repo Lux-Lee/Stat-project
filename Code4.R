@@ -6,7 +6,7 @@ library(readxl)
 Canadian_Health <- read_excel("Proj_data.xlsx", sheet = "Canadian Perceived Health")
 Indigenous_Health <- read_excel("Proj_data.xlsx", sheet = "Indigenous Perceived Health")
 Conv_Data<-read_excel("Proj_data.xlsx", sheet = "Sheet1")
-
+Conv_Data[7,3]<-364900
 Health_Data  <- bind_rows(
   mutate(Indigenous_Health, Group = "Indigenous"),
   mutate(Canadian_Health, Group = "Canadian")
