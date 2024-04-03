@@ -6,7 +6,13 @@ library(readxl)
 Canadian_Health <- read_excel("Proj_data.xlsx", sheet = "Canadian Perceived Health")
 Indigenous_Health <- read_excel("Proj_data.xlsx", sheet = "Indigenous Perceived Health")
 Conv_Data<-read_excel("Proj_data.xlsx", sheet = "Sheet1")
-Conv_Data[7,3]<-364900
+Conv_Data_R<- Conv_Data %>%
+  mutate(
+    Ex_G = round(Ex_G, digits=0),
+    F_P = round(F_P, digits=0)
+  )
+Conv_Data_R <- subset(Conv_Data_R, select=-c(Total, Percentage))
+
 Health_Data  <- bind_rows(
   mutate(Indigenous_Health, Group = "Indigenous"),
   mutate(Canadian_Health, Group = "Canadian")
@@ -31,7 +37,7 @@ Ex_Data <- Perceived %>%
     Group = factor(Group, levels = c("Canadian", "Indigenous"))
   )
 
-Conv_Data_F<- Conv_Data %>%
+Conv_Data_F<- Conv_Data_R %>%
   mutate(
     Year = factor(Year),
     Period = factor(Period, levels =c("Pre","Post")),
@@ -69,15 +75,29 @@ model1 <- multinom(Category ~ Gender * Group, data = longData)
 summary(model1)
 
 library(emmeans)
-glm1 <- glm(cbind(Ex_G, F_P) ~ Gender * Group * Period, data = Conv_Data_F, family = binomial)
-emmeans(glm1, ~Gender + Period + Group,)
+glm1 <- glm(cbind(Ex_G, F_P) ~ Gender + Group * Period, data = Conv_Data_F, family = binomial)
+summary(glm1)
+plot(glm1)
+plot(emmeans(glm1, ~Gender + Period + Group, type = "response"))
 emmeans(glm1, ~Gender + Group, by = "Period", type = "response")
 emm1 <- emmeans(glm1, ~Gender + Group, by = "Period", type = "response")
 pairs(emm1)
 plot(emm1, xlab="EMM", ylab="Gender:Group")
-
+data.frame(emm1)
 glm2 <- glm(cbind(Ex_G, F_P) ~ Gender * Group * Year, data = Conv_Data_F, family = binomial)
-emm2 <- emmeans(glm2, ~Gender + Group, by="Year", type="response")
-pairs(emm2)
+glm3 <- glm(cbind(Ex_G, F_P) ~ Gender + Group * Year, data = Conv_Data_F, family = binomial)
+anova(glm3,glm2, test="Chisq")
+emm2 <- emmeans(glm3, ~Gender + Group, by="Year", type="response")
+pairs(emm3)
 plot(emm2, xlab="EMM", ylab="Gender:Group")
 
+emm3<- emmeans(glm1, ~ Period + Gender, by="Group", type="response")
+plot(emm3)
+emm4<- emmeans(glm1, ~ Period + Group, by="Gender", type="response")
+plot(emm4)
+emm5 <- emmeans(glm1, ~ Period + Group, type="response")
+plot(emm5)
+emm6 <- emmeans(glm1, ~ Period + Gender, type="response")
+plot(emm6)
+emm7 <- emmeans(glm1, ~ Period + Gender + Group, type="response")
+plot(emm7)

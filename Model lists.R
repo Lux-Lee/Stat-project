@@ -45,7 +45,7 @@ summary(Sub.model9)
 Sub.model10<-lm(log(Percentage)~Group, data=subset(Diff.GR, Timeline=="Pre"))
 summary(Sub.model10)
 
-##GLM Models##
+##Estimated marginal means##
 Cov_model4 <-glm(cbind(Ex_G, F_P)~Gender*Group*Year, family=binomial, data=Conv_Data_F)
 summary(Cov_model4)
 glm1 <- glm(cbind(Ex_G, F_P) ~ Gender * Group * Period, data = Conv_Data_F, family = binomial)
