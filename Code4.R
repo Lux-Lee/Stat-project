@@ -101,3 +101,31 @@ emm6 <- emmeans(glm1, ~ Period + Gender, type="response")
 plot(emm6)
 emm7 <- emmeans(glm1, ~ Period + Gender + Group, type="response")
 plot(emm7)
+
+glm2<- glm(formula = Ex_G ~ offset(log(total)) + Gender + Group * Period, 
+           family = poisson, data = Conv_Data_F)
+summary(glm2)
+####Estimated marginal means####
+##Health care disparty change in groups##
+emmp1 <- emmeans(glm2, ~ Group, by = "Period", type = "response")
+plot(emm2, xlab="Ex_G Proportion", ylab="Category", color="yellow") +
+  theme_black() 
+summary(emm2)
+##Change in genders##
+emm4 <- emmeans(glm1, ~ Gender, by = "Period", type = "response")
+plot(emm4, xlab="Ex_G Proportion", ylab="Category", color="yellow") +
+  theme_black() 
+summary(emm4)
+##Gender difference change among groups##
+emm3<- emmeans(glm1, ~ Gender + Period, by="Group", type="response")
+plot(emm3, xlab="Ex_G Proportion", ylab="Category", color="yellow") +
+  theme_black() 
+summary(emm3)
+emm3_D<- data.frame(emm3)
+##Overall change##
+emmp1<- emmeans(glm2, ~Gender + Period + Group, type = "response")
+pairs(emm1)
+summary(emmp1)
+emm1_D<- data.frame(emm1)
+plot(emmp1, xlab="Ex_G Proportion", ylab="Category", color="yellow") +
+  theme_black() 

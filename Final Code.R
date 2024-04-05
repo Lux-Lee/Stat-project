@@ -11,7 +11,8 @@ Conv_Data<-read_excel("Proj_data.xlsx", sheet = "Sheet1")
 Conv_Data_R<- Conv_Data %>%
   mutate(
     Ex_G = round(Ex_G, digits=0),
-    F_P = round(F_P, digits=0)
+    F_P = round(F_P, digits=0),
+    total = Ex_G+F_P
   )
 Conv_Data_R <- subset(Conv_Data_R, select=-c(Total, Percentage))
 
@@ -25,6 +26,8 @@ Conv_Data_F<- Conv_Data_R %>%
 ##Binary Response Model with main and interaction##
 glm1 <- glm(cbind(Ex_G, F_P) ~ Gender + Group * Period, data = Conv_Data_F, family = binomial)
 summary(glm1)
+glm2<- glm(formula = Ex_G ~ offset(log(total)) + Gender + Group * Period, 
+           family = poisson, data = Conv_Data_F)
 ####Estimated marginal means####
 ##Health care disparty change in groups##
 emm2 <- emmeans(glm1, ~ Group, by = "Period", type = "response")
@@ -115,3 +118,13 @@ theme_black <- function(base_size = 12, base_family = "") {
     )
   
 }
+f1 <- fitted(glm1)
+res<-residuals(glm1, "pearson")
+Res<-data.frame(f1,res)
+plot(f1,res)
+ggplot(data=Res, aes(x=f1, y=res)) +
+  theme_black() + 
+  labs(title="Residual vs Fitted",
+       x="Predicted Values", y="Residual Values") +
+  geom_point(color="white")+
+  geom_line(y=0, col="red")
