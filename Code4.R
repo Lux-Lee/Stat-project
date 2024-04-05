@@ -105,23 +105,13 @@ plot(emm7)
 glm2<- glm(formula = Ex_G ~ offset(log(total)) + Gender + Group * Period, 
            family = poisson, data = Conv_Data_F)
 summary(glm2)
+glm3<-glm(cbind(Ex_G, F_P) ~ Gender + Group * Period, family = quasibinomial, 
+          data = Conv_Data_F)
+plot(glm3)
+glm4<-glm.nb(cbind(Ex_G, F_P) ~ Gender + Group * Period, 
+          family = binomial, data = Conv_Data_F)
+summary(glm3)
 ####Estimated marginal means####
-##Health care disparty change in groups##
-emmp1 <- emmeans(glm2, ~ Group, by = "Period", type = "response")
-plot(emm2, xlab="Ex_G Proportion", ylab="Category", color="yellow") +
-  theme_black() 
-summary(emm2)
-##Change in genders##
-emm4 <- emmeans(glm1, ~ Gender, by = "Period", type = "response")
-plot(emm4, xlab="Ex_G Proportion", ylab="Category", color="yellow") +
-  theme_black() 
-summary(emm4)
-##Gender difference change among groups##
-emm3<- emmeans(glm1, ~ Gender + Period, by="Group", type="response")
-plot(emm3, xlab="Ex_G Proportion", ylab="Category", color="yellow") +
-  theme_black() 
-summary(emm3)
-emm3_D<- data.frame(emm3)
 ##Overall change##
 emmp1<- emmeans(glm2, ~Gender + Period + Group, type = "response")
 pairs(emm1)
@@ -129,3 +119,31 @@ summary(emmp1)
 emm1_D<- data.frame(emm1)
 plot(emmp1, xlab="Ex_G Proportion", ylab="Category", color="yellow") +
   theme_black() 
+##Residual plot##
+f1 <- fitted(glm1)
+res<-residuals(glm1, "pearson")
+resd<-residuals(glm1, type="deviance")
+f2<- fitted(glm2)
+resp<-residuals(glm2, "deviance")
+plot(f2, resp)
+residuals(glm1)
+Res<-data.frame(f1,res)
+plot(f1,res)
+ggplot(data=Res, aes(x=f1, y=res)) +
+  theme_black() + 
+  labs(title="Residual vs Fitted",
+       x="Predicted Values", y="Residual Values") +
+  geom_point(data=df,aes(x=x, y=y), color="black") +
+  geom_path(data=df, aes(x=x, y=y), color="#00FF0066", size=2)+
+  geom_point(color="white", aes(x=f1, y=res))+
+  geom_line(y=0, col="red", aes(x=f1, y=res))
+
+  
+##Polygon##
+df<- data.frame(x=c(0.87,0.75,0.85), y=c(-8,0,8))
+dfp<-ggplot(df, aes(x,y)) +
+  theme_black()+
+  labs(title="Residual vs Fitted",
+       x="Predicted Values", y="Residual Values") +
+  geom_point(df,color="black") +
+  geom_polygon(df, fill="#00FF0066")

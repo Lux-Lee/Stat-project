@@ -26,8 +26,13 @@ Conv_Data_F<- Conv_Data_R %>%
 ##Binary Response Model with main and interaction##
 glm1 <- glm(cbind(Ex_G, F_P) ~ Gender + Group * Period, data = Conv_Data_F, family = binomial)
 summary(glm1)
+glm3<- glm(formula= cbind(Ex_G, F_P) ~Gender+Group*Year, data=Conv_Data_F, family=binomial)
+emm4<- emmeans(glm3, ~ Year, by="Group", type="reponse")
+plot(emm4, xlab="Ex_G Proportion", ylab="Category", color="yellow") +
+  theme_black() 
 glm2<- glm(formula = Ex_G ~ offset(log(total)) + Gender + Group * Period, 
            family = poisson, data = Conv_Data_F)
+summary(glm2)
 ####Estimated marginal means####
 ##Health care disparty change in groups##
 emm2 <- emmeans(glm1, ~ Group, by = "Period", type = "response")
@@ -68,10 +73,8 @@ ggplot(data=emm1_D, aes(color=interaction(Gender, Group), x=Period, y=prob)) +
   geom_point() +
   geom_line(data=subset(emm1_D, Group=="Canadian"),aes(group=Gender)) +
   geom_line(data=subset(emm1_D, Group=="Indigenous"),aes(group=Gender)) 
-
-
+##Theme##
 library(gridExtra)
-
 theme_black <- function(base_size = 12, base_family = "") {
   
   theme_grey(base_size = base_size, base_family = base_family) %+replace%
@@ -114,10 +117,10 @@ theme_black <- function(base_size = 12, base_family = "") {
       plot.background = element_rect(color = "black", fill = "black"),  
       plot.title = element_text(size = base_size*1.2, color = "white"),  
       plot.margin = unit(rep(1, 4), "lines")
-      
     )
-  
 }
+
+##Residuals##
 f1 <- fitted(glm1)
 res<-residuals(glm1, "pearson")
 Res<-data.frame(f1,res)
@@ -126,5 +129,7 @@ ggplot(data=Res, aes(x=f1, y=res)) +
   theme_black() + 
   labs(title="Residual vs Fitted",
        x="Predicted Values", y="Residual Values") +
-  geom_point(color="white")+
-  geom_line(y=0, col="red")
+  geom_point(data=df,aes(x=x, y=y), color="black") +
+  geom_path(data=df, aes(x=x, y=y), color="#00FF0066", size=2)+
+  geom_point(color="white", aes(x=f1, y=res))+
+  geom_line(y=0, col="red", aes(x=f1, y=res))
