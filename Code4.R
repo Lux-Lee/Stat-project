@@ -125,7 +125,7 @@ res<-residuals(glm1, "pearson")
 resd<-residuals(glm1, type="deviance")
 f2<- fitted(glm2)
 resp<-residuals(glm2, "deviance")
-plot(f2, resp)
+plot(f1, resp)
 residuals(glm1)
 Res<-data.frame(f1,res)
 plot(f1,res)
@@ -137,8 +137,9 @@ ggplot(data=Res, aes(x=f1, y=res)) +
   geom_path(data=df, aes(x=x, y=y), color="#00FF0066", size=2)+
   geom_point(color="white", aes(x=f1, y=res))+
   geom_line(y=0, col="red", aes(x=f1, y=res))
-
-  
+halfnorm(residuals(glm1, type="deviance"), main="Half normal QQ plot")+
+  theme_black()
+library(faraway)
 ##Polygon##
 df<- data.frame(x=c(0.87,0.75,0.85), y=c(-8,0,8))
 dfp<-ggplot(df, aes(x,y)) +
@@ -147,3 +148,34 @@ dfp<-ggplot(df, aes(x,y)) +
        x="Predicted Values", y="Residual Values") +
   geom_point(df,color="black") +
   geom_polygon(df, fill="#00FF0066")
+##Each group##
+glm3 <- glm(cbind(Ex_G, F_P) ~ Gender + Period, data = subset(Conv_Data_F, Group == "Indigenous"), family = binomial)
+summary(glm3)
+glm3I <- glm(cbind(Ex_G, F_P) ~ Gender * Period, data = subset(Conv_Data_F, Group == "Indigenous"), family = binomial)
+summary(glm3I)
+anova(glm3,glm3I, test="Chisq")
+glm4 <- glm(cbind(Ex_G, F_P) ~ Gender + Period, data = subset(Conv_Data_F, Group == "Canadian"), family = binomial)
+summary(glm4)
+glm4I <- glm(cbind(Ex_G, F_P) ~ Gender * Period, data = subset(Conv_Data_F, Group == "Canadian"), family = binomial)
+summary(glm4I)
+anova(glm4,glm4I, test="Chisq")
+##Each group Residual plot##
+plot(glm3I)
+plot(glm4)
+f1 <- fitted(glm2)
+res<-residuals(glm2, "pearson")
+Res<-data.frame(f1,res)
+plot(f1,res)
+##Poisson##
+glm_p1<- glm(Ex_G ~ offset(log(total)) + Gender + Group * Period, data = Conv_Data_F, family = poisson)
+summary(glm_p1)
+glm_p2<- glm(Ex_G ~ offset(log(total)) + Gender * Group * Period, data = Conv_Data_F, family = poisson)
+summary(glm_p2)
+anova(glm_p1, glm_p2, test="Chisq")
+plot(glm_p1)
+##Poisson each group##
+glm_p3<- glm(Ex_G ~ offset(log(total)) + Gender + Period, data = subset(Conv_Data_F, Group == "Canadian"), family = poisson)
+summary(glm_p3)
+glm_p4<- glm(Ex_G ~ offset(log(total)) + Gender, data = subset(Conv_Data_F, Group == "Indigenous"), family = poisson)
+summary(glm_p4)
+

@@ -26,6 +26,9 @@ Conv_Data_F<- Conv_Data_R %>%
 ##Binary Response Model with main and interaction##
 glm1 <- glm(cbind(Ex_G, F_P) ~ Gender + Group * Period, data = Conv_Data_F, family = binomial)
 summary(glm1)
+glm2 <- glm(cbind(Ex_G, F_P) ~ Gender * Group * Period, data = Conv_Data_F, family = binomial)
+summary(glm2)
+anova(glm1, glm2, test="Chisq")
 glm3<- glm(formula= cbind(Ex_G, F_P) ~Gender+Group*Year, data=Conv_Data_F, family=binomial)
 emm4<- emmeans(glm3, ~ Year, by="Group", type="reponse")
 plot(emm4, xlab="Ex_G Proportion", ylab="Category", color="yellow") +
@@ -35,23 +38,23 @@ glm2<- glm(formula = Ex_G ~ offset(log(total)) + Gender + Group * Period,
 summary(glm2)
 ####Estimated marginal means####
 ##Health care disparty change in groups##
-emm2 <- emmeans(glm1, ~ Group, by = "Period", type = "response")
+emm2 <- emmeans(glm2, ~ Group, by = "Period", type = "response")
 plot(emm2, xlab="Ex_G Proportion", ylab="Category", color="yellow") +
   theme_black() 
 summary(emm2)
 ##Change in genders##
-emm4 <- emmeans(glm1, ~ Gender, by = "Period", type = "response")
+emm4 <- emmeans(glm2, ~ Gender + Group, by = "Period", type = "response")
 plot(emm4, xlab="Ex_G Proportion", ylab="Category", color="yellow") +
   theme_black() 
 summary(emm4)
 ##Gender difference change among groups##
-emm3<- emmeans(glm1, ~ Gender + Period, by="Group", type="response")
+emm3<- emmeans(glm2, ~ Gender + Period, by="Group", type="response")
 plot(emm3, xlab="Ex_G Proportion", ylab="Category", color="yellow") +
   theme_black() 
 summary(emm3)
 emm3_D<- data.frame(emm3)
 ##Overall change##
-emm1<- emmeans(glm1, ~Gender + Period + Group, type = "response")
+emm1<- emmeans(glm2, ~Gender + Period + Group, type = "response")
 pairs(emm1)
 summary(emm1)
 emm1_D<- data.frame(emm1)
@@ -73,6 +76,8 @@ ggplot(data=emm1_D, aes(color=interaction(Gender, Group), x=Period, y=prob)) +
   geom_point() +
   geom_line(data=subset(emm1_D, Group=="Canadian"),aes(group=Gender)) +
   geom_line(data=subset(emm1_D, Group=="Indigenous"),aes(group=Gender)) 
+##Model fit##
+pchisq(206.13,11,lower.tail = F)
 ##Theme##
 library(gridExtra)
 theme_black <- function(base_size = 12, base_family = "") {
@@ -120,16 +125,44 @@ theme_black <- function(base_size = 12, base_family = "") {
     )
 }
 
-##Residuals##
-f1 <- fitted(glm1)
-res<-residuals(glm1, "pearson")
+##Residual plot##
+f1 <- fitted(glm2)
+res<-residuals(glm2, "pearson")
 Res<-data.frame(f1,res)
 plot(f1,res)
 ggplot(data=Res, aes(x=f1, y=res)) +
   theme_black() + 
-  labs(title="Residual vs Fitted",
+  labs(title="Pearson Residual vs Fitted of full data",
        x="Predicted Values", y="Residual Values") +
   geom_point(data=df,aes(x=x, y=y), color="black") +
   geom_path(data=df, aes(x=x, y=y), color="#00FF0066", size=2)+
   geom_point(color="white", aes(x=f1, y=res))+
   geom_line(y=0, col="red", aes(x=f1, y=res))
+##Each group##
+glm3 <- glm(cbind(Ex_G, F_P) ~ Gender + Period, data = subset(Conv_Data_F, Group == "Indigenous"), family = binomial)
+summary(glm3)
+glm3I <- glm(cbind(Ex_G, F_P) ~ Gender * Period, data = subset(Conv_Data_F, Group == "Indigenous"), family = binomial)
+summary(glm3I)
+anova(glm3,glm3I, test="Chisq")
+glm4 <- glm(cbind(Ex_G, F_P) ~ Gender + Period, data = subset(Conv_Data_F, Group == "Canadian"), family = binomial)
+summary(glm4)
+glm4I <- glm(cbind(Ex_G, F_P) ~ Gender * Period, data = subset(Conv_Data_F, Group == "Canadian"), family = binomial)
+summary(glm4I)
+anova(glm4,glm4I, test="Chisq")
+##Poisson##
+glm_p1<- glm(Ex_G ~ offset(log(total)) + Gender + Group * Period, data = Conv_Data_F, family = poisson)
+summary(glm_p1)
+glm_p2<- glm(Ex_G ~ offset(log(total)) + Gender * Group * Period, data = Conv_Data_F, family = poisson)
+summary(glm_p2)
+anova(glm_p1, glm_p2, test="Chisq")
+##Poisson residual plot##
+f2 <- fitted(glm_p1)
+res2<-residuals(glm_p1, "pearson")
+Res2<-data.frame(f2,res2)
+plot(f2,res)
+ggplot(data=Res2, aes(x=f2, y=res2)) +
+  theme_black() + 
+  labs(title="Pearson Residual vs Fitted of Poisson model",
+       x="Predicted Values", y="Residual Values") +
+  geom_point(color="white", aes(x=f2, y=res2))+
+  geom_line(y=0, col="red", aes(x=f2, y=res2))
