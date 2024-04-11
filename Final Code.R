@@ -29,13 +29,6 @@ summary(glm1)
 glm2 <- glm(cbind(Ex_G, F_P) ~ Gender * Group * Period, data = Conv_Data_F, family = binomial)
 summary(glm2)
 anova(glm1, glm2, test="Chisq")
-glm3<- glm(formula= cbind(Ex_G, F_P) ~Gender+Group*Year, data=Conv_Data_F, family=binomial)
-emm4<- emmeans(glm3, ~ Year, by="Group", type="reponse")
-plot(emm4, xlab="Ex_G Proportion", ylab="Category", color="yellow") +
-  theme_black() 
-glm2<- glm(formula = Ex_G ~ offset(log(total)) + Gender + Group * Period, 
-           family = poisson, data = Conv_Data_F)
-summary(glm2)
 ####Estimated marginal means####
 ##Health care disparty change in groups##
 emm2 <- emmeans(glm2, ~ Group, by = "Period", type = "response")
@@ -47,6 +40,9 @@ emm4 <- emmeans(glm2, ~ Gender + Group, by = "Period", type = "response")
 plot(emm4, xlab="Ex_G Proportion", ylab="Category", color="yellow") +
   theme_black() 
 summary(emm4)
+plot(emmeans(glm2, ~ Group + Period, type="response"), xlab="Ex_G Proportion", 
+     ylab="Category", color="yellow") +
+  theme_black()
 ##Gender difference change among groups##
 emm3<- emmeans(glm2, ~ Gender + Period, by="Group", type="response")
 plot(emm3, xlab="Ex_G Proportion", ylab="Category", color="yellow") +
