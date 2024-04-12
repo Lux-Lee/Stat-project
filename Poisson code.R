@@ -39,6 +39,7 @@ ggplot(data=Res2, aes(x=f2, y=res2)) +
        x="Predicted Values", y="Residual Values") +
   geom_point(color="white", aes(x=f2, y=res2))+
   geom_line(y=0, col="red", aes(x=f2, y=res2))
+<<<<<<< HEAD
 ##negative binomial##
 library(MASS)
 nb_glm1 <- glm.nb(Ex_G ~ offset(log(total)) + Gender + Group * Period, 
@@ -95,3 +96,5 @@ ggplot(data=Res3, aes(x=f3, y=res3)) +
        x="Predicted Values", y="Residual Values") +
   geom_point(color="white", aes(x=f3, y=res3))+
   geom_line(y=0, col="red", aes(x=f3, y=res3))
+=======
+>>>>>>> bba513d3d62bfefc4d2aa5bc031b48c8c51ec660

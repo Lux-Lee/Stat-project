@@ -5,6 +5,78 @@ library(nnet)
 library(readxl)
 library(emmeans)
 library(ggplot2)
+<<<<<<< HEAD
+=======
+
+Conv_Data<-read_excel("Proj_data.xlsx", sheet = "Sheet1")
+##Convert Data Format##
+Conv_Data_R<- Conv_Data %>%
+  mutate(
+    Ex_G = round(Ex_G, digits=0),
+    F_P = round(F_P, digits=0),
+    total = Ex_G+F_P
+  )
+Conv_Data_R <- subset(Conv_Data_R, select=-c(Total, Percentage))
+
+Conv_Data_F<- Conv_Data_R %>%
+  mutate(
+    Year = factor(Year),
+    Period = factor(Period, levels =c("Pre","Post")),
+    Gender = factor(Gender, levels = c("Women", "Men")),
+    Group = factor(Group, levels = c("Canadian", "Indigenous"))
+  )
+##Binary Response Model with main and interaction##
+glm1 <- glm(cbind(Ex_G, F_P) ~ Gender + Group * Period, data = Conv_Data_F, family = binomial)
+summary(glm1)
+glm2 <- glm(cbind(Ex_G, F_P) ~ Gender * Group * Period, data = Conv_Data_F, family = binomial)
+summary(glm2)
+anova(glm1, glm2, test="Chisq")
+####Estimated marginal means####
+##Health care disparty change in groups##
+emm2 <- emmeans(glm2, ~ Group, by = "Period", type = "response")
+plot(emm2, xlab="Ex_G Proportion", ylab="Category", color="yellow") +
+  theme_black() 
+summary(emm2)
+##Change in genders##
+emm4 <- emmeans(glm2, ~ Gender + Group, by = "Period", type = "response")
+plot(emm4, xlab="Ex_G Proportion", ylab="Category", color="yellow") +
+  theme_black() 
+summary(emm4)
+plot(emmeans(glm2, ~ Group + Period, type="response"), xlab="Ex_G Proportion", 
+     ylab="Category", color="yellow") +
+  theme_black()
+##Gender difference change among groups##
+emm3<- emmeans(glm2, ~ Gender + Period, by="Group", type="response")
+plot(emm3, xlab="Ex_G Proportion", ylab="Category", color="yellow") +
+  theme_black() 
+summary(emm3)
+emm3_D<- data.frame(emm3)
+##Overall change##
+emm1<- emmeans(glm2, ~Gender + Period + Group, type = "response")
+pairs(emm1)
+summary(emm1)
+emm1_D<- data.frame(emm1)
+plot(emm1, xlab="Ex_G Proportion", ylab="Category", color="yellow") +
+  theme_black() 
+##Plotting##
+emm1_D<-data.frame(emm1_D[1:4])
+emm1_D <-emm1_D %>%
+  mutate(Period = factor(Period, levels =c("Pre","Post")),
+        Gender = factor(Gender, levels = c("Women", "Men")),
+        Group = factor(Group, levels = c("Canadian", "Indigenous"))
+)
+emm1_D <-emm1_D %>%
+  group_by(Gender, Group)
+ggplot(data=emm1_D, aes(color=interaction(Gender, Group), x=Period, y=prob)) +
+  theme_black() + 
+  labs(title="COVID-19 impact on Perceived Health",
+       x="Period", y="Probability of Excellent_Good", color="Gender.Group") +
+  geom_point() +
+  geom_line(data=subset(emm1_D, Group=="Canadian"),aes(group=Gender)) +
+  geom_line(data=subset(emm1_D, Group=="Indigenous"),aes(group=Gender)) 
+##Model fit##
+pchisq(206.13,11,lower.tail = F)
+>>>>>>> bba513d3d62bfefc4d2aa5bc031b48c8c51ec660
 ##Theme##
 library(gridExtra)
 theme_black <- function(base_size = 12, base_family = "") {
