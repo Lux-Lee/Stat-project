@@ -3,6 +3,7 @@ library(dplyr)
 library(openxlsx)                      
 library(nnet) 
 library(readxl)
+library(ggplot2)
 Canadian_Health <- read_excel("Proj_data.xlsx", sheet = "Canadian Perceived Health")
 Indigenous_Health <- read_excel("Proj_data.xlsx", sheet = "Indigenous Perceived Health")
 Conv_Data<-read_excel("Proj_data.xlsx", sheet = "Sheet1")
@@ -178,4 +179,3 @@ glm_p3<- glm(Ex_G ~ offset(log(total)) + Gender + Period, data = subset(Conv_Dat
 summary(glm_p3)
 glm_p4<- glm(Ex_G ~ offset(log(total)) + Gender, data = subset(Conv_Data_F, Group == "Indigenous"), family = poisson)
 summary(glm_p4)
-
