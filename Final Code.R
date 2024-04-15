@@ -5,78 +5,7 @@ library(nnet)
 library(readxl)
 library(emmeans)
 library(ggplot2)
-<<<<<<< HEAD
-=======
 
-Conv_Data<-read_excel("Proj_data.xlsx", sheet = "Sheet1")
-##Convert Data Format##
-Conv_Data_R<- Conv_Data %>%
-  mutate(
-    Ex_G = round(Ex_G, digits=0),
-    F_P = round(F_P, digits=0),
-    total = Ex_G+F_P
-  )
-Conv_Data_R <- subset(Conv_Data_R, select=-c(Total, Percentage))
-
-Conv_Data_F<- Conv_Data_R %>%
-  mutate(
-    Year = factor(Year),
-    Period = factor(Period, levels =c("Pre","Post")),
-    Gender = factor(Gender, levels = c("Women", "Men")),
-    Group = factor(Group, levels = c("Canadian", "Indigenous"))
-  )
-##Binary Response Model with main and interaction##
-glm1 <- glm(cbind(Ex_G, F_P) ~ Gender + Group * Period, data = Conv_Data_F, family = binomial)
-summary(glm1)
-glm2 <- glm(cbind(Ex_G, F_P) ~ Gender * Group * Period, data = Conv_Data_F, family = binomial)
-summary(glm2)
-anova(glm1, glm2, test="Chisq")
-####Estimated marginal means####
-##Health care disparty change in groups##
-emm2 <- emmeans(glm2, ~ Group, by = "Period", type = "response")
-plot(emm2, xlab="Ex_G Proportion", ylab="Category", color="yellow") +
-  theme_black() 
-summary(emm2)
-##Change in genders##
-emm4 <- emmeans(glm2, ~ Gender + Group, by = "Period", type = "response")
-plot(emm4, xlab="Ex_G Proportion", ylab="Category", color="yellow") +
-  theme_black() 
-summary(emm4)
-plot(emmeans(glm2, ~ Group + Period, type="response"), xlab="Ex_G Proportion", 
-     ylab="Category", color="yellow") +
-  theme_black()
-##Gender difference change among groups##
-emm3<- emmeans(glm2, ~ Gender + Period, by="Group", type="response")
-plot(emm3, xlab="Ex_G Proportion", ylab="Category", color="yellow") +
-  theme_black() 
-summary(emm3)
-emm3_D<- data.frame(emm3)
-##Overall change##
-emm1<- emmeans(glm2, ~Gender + Period + Group, type = "response")
-pairs(emm1)
-summary(emm1)
-emm1_D<- data.frame(emm1)
-plot(emm1, xlab="Ex_G Proportion", ylab="Category", color="yellow") +
-  theme_black() 
-##Plotting##
-emm1_D<-data.frame(emm1_D[1:4])
-emm1_D <-emm1_D %>%
-  mutate(Period = factor(Period, levels =c("Pre","Post")),
-        Gender = factor(Gender, levels = c("Women", "Men")),
-        Group = factor(Group, levels = c("Canadian", "Indigenous"))
-)
-emm1_D <-emm1_D %>%
-  group_by(Gender, Group)
-ggplot(data=emm1_D, aes(color=interaction(Gender, Group), x=Period, y=prob)) +
-  theme_black() + 
-  labs(title="COVID-19 impact on Perceived Health",
-       x="Period", y="Probability of Excellent_Good", color="Gender.Group") +
-  geom_point() +
-  geom_line(data=subset(emm1_D, Group=="Canadian"),aes(group=Gender)) +
-  geom_line(data=subset(emm1_D, Group=="Indigenous"),aes(group=Gender)) 
-##Model fit##
-pchisq(206.13,11,lower.tail = F)
->>>>>>> bba513d3d62bfefc4d2aa5bc031b48c8c51ec660
 ##Theme##
 library(gridExtra)
 theme_black <- function(base_size = 12, base_family = "") {
@@ -142,11 +71,14 @@ Conv_Data_F<- Conv_Data_R %>%
     Gender = factor(Gender, levels = c("Women", "Men")),
     Group = factor(Group, levels = c("Canadian", "Indigenous"))
   )
+Data<- Conv_Data_F
 ##Logistic Model and Comparison##
-glm1 <- glm(cbind(Ex_G, F_P) ~ Gender + Group * Period, data = Conv_Data_F, family = binomial)
+glm1 <- glm(cbind(Ex_G, F_P) ~ Gender + Group + Period, data = Conv_Data_F, family = binomial)
 summary(glm1)
-glm2 <- glm(cbind(Ex_G, F_P) ~ Gender * Group * Period, data = Conv_Data_F, family = binomial)
+glm2 <- glm(cbind(Ex_G, F_P) ~ Gender + Group * Period, data = Conv_Data_F, family = binomial)
 summary(glm2)
+glm3 <-glm(cbind(Ex_G, F_P) ~ Gender * Group * Period, data = Conv_Data_F, family = binomial)
+summary(glm3)
 anova(glm1, glm2, test="Chisq")
 ##Residual plot##
 f1 <- fitted(glm2)
@@ -154,12 +86,11 @@ res<-residuals(glm2, "pearson")
 Res<-data.frame(f1,res)
 plot(f1,res)
 ggplot(data=Res, aes(x=f1, y=res)) +
-  theme_black() + 
   labs(title="Pearson Residual vs Fitted of full data",
        x="Predicted Values", y="Residual Values") +
-  geom_point(data=df,aes(x=x, y=y), color="black") +
+  geom_point(data=df,aes(x=x, y=y), color="white") +
   geom_path(data=df, aes(x=x, y=y), color="#00FF0066", size=2)+
-  geom_point(color="white", aes(x=f1, y=res))+
+  geom_point(color="black", aes(x=f1, y=res))+
   geom_line(y=0, col="red", aes(x=f1, y=res))
 ##Model fit##
 pchisq(185.9, 8, lower.tail = F)
@@ -176,10 +107,9 @@ res2<-residuals(glm_p1, "pearson")
 Res2<-data.frame(f2,res2)
 plot(f2,res)
 ggplot(data=Res2, aes(x=f2, y=res2)) +
-  theme_black() + 
   labs(title="Pearson Residual vs Fitted of Poisson model",
        x="Predicted Values", y="Residual Values") +
-  geom_point(color="white", aes(x=f2, y=res2))+
+  geom_point(color="black", aes(x=f2, y=res2))+
   geom_line(y=0, col="red", aes(x=f2, y=res2))
 ##Model fit##
 pchisq(30.813,11, lower.tail=F)
@@ -199,10 +129,9 @@ res3<-residuals(nb_glm1, "pearson")
 Res3<-data.frame(f3,res3)
 plot(f3,res3)
 ggplot(data=Res3, aes(x=f3, y=res3)) +
-  theme_black() + 
   labs(title="Pearson Residual vs Fitted of Negative Binomial model",
        x="Predicted Values", y="Residual Values") +
-  geom_point(color="white", aes(x=f3, y=res3))+
+  geom_point(color="black", aes(x=f3, y=res3))+
   geom_line(y=0, col="red", aes(x=f3, y=res3))
 ##Model fit##
 pchisq(15.149, 11, lower.tail=F)
@@ -211,8 +140,8 @@ pchisq(15.149, 11, lower.tail=F)
 emm_nb1<- emmeans(nb_glm1, ~Gender + Period + Group)
 summary(nb_glm1)
 emmnb1_D<- data.frame(emm_nb1)
-plot(emm_nb1, xlab= "Estimated Marginal Mean",ylab="Category", color="yellow", type="response") +
-  theme_black() 
+emm_nb2<- emmeans(nb_glm1, ~ Period + Group)
+plot(emm_nb2, xlab= "Estimated Marginal Mean",ylab="Category", type="response")
 emmnb1_D<-data.frame(emmnb1_D[1:4])
 emmnb1_D <-emmnb1_D %>%
   mutate(Period = factor(Period, levels =c("Pre","Post")),
@@ -222,7 +151,6 @@ emmnb1_D <-emmnb1_D %>%
 emmnb1_D <-emmnb1_D %>%
   group_by(Gender, Group)
 ggplot(data=emmnb1_D, aes(color=interaction(Gender, Group), x=Period, y=emmean)) +
-  theme_black() + 
   labs(title="COVID-19 impact on Perceived Health",
        x="Period", y="Estimated Marginal Mean", color="Gender.Group") +
   geom_point() +

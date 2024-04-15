@@ -4,6 +4,10 @@ summary(glm_p1)
 glm_p2<- glm(Ex_G ~ offset(log(total)) + Gender * Group * Period, data = Conv_Data_F, family = poisson)
 summary(glm_p2)
 anova(glm_p1, glm_p2, test="Chisq")
+##Quasi poisson##
+glm_qp1<- glm(Ex_G ~ offset(log(total)) + Gender + Group * Period, data = Conv_Data_F, family = quasipoisson)
+summary(glm_qp1)
+plot(glm_qp1)
 ##Poisson EMM plot##
 emm_p1<- emmeans(glm_p1, ~Gender + Period + Group, type = "response")
 pairs(emm_p1)
@@ -39,7 +43,6 @@ ggplot(data=Res2, aes(x=f2, y=res2)) +
        x="Predicted Values", y="Residual Values") +
   geom_point(color="white", aes(x=f2, y=res2))+
   geom_line(y=0, col="red", aes(x=f2, y=res2))
-<<<<<<< HEAD
 ##negative binomial##
 library(MASS)
 nb_glm1 <- glm.nb(Ex_G ~ offset(log(total)) + Gender + Group * Period, 
@@ -96,5 +99,3 @@ ggplot(data=Res3, aes(x=f3, y=res3)) +
        x="Predicted Values", y="Residual Values") +
   geom_point(color="white", aes(x=f3, y=res3))+
   geom_line(y=0, col="red", aes(x=f3, y=res3))
-=======
->>>>>>> bba513d3d62bfefc4d2aa5bc031b48c8c51ec660
